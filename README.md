@@ -2,6 +2,8 @@
 Back-end сервис, который реализует авторизацию и регистрацию, запись/редактирование пользователей, отправку уведомлений,
 а также отправку сообщений в систему.
 
+Архитектура сервиса - MVC
+
 # Тема для практической работы
 Разработать систему информирования пользователей о днях рождениях. При этом необходимо предусмотреть возможность размещения фотографий и сведений о пользователях, 
 а при приближении дня рождения необходимо выводить соответствующие сведения с фотографией на панель информирования.
@@ -45,3 +47,4 @@ Back-end сервис, который реализует авторизацию 
 * [Spring](https://spring.io/projects/spring) - provides a comprehensive programming and configuration model for modern Java-based enterprise applications - on any kind of deployment platform
 * [Spring Boot](https://spring.io/projects/spring-boot) - makes it easy to create stand-alone, production-grade Spring based Applications that you can "just run"
 
+## Описание пакетов
