@@ -1,0 +1,64 @@
+server:
+  port: 8081
+spring:
+#  security:
+#      client:
+#        registration:
+#          keycloak:
+#            client-id: my-client
+#            authorization-grant-type: authorization_code
+#            scope: openid
+#        provider:
+#          keycloak:
+#            issuer-uri: http://localhost:8080/realms/dashboard_realm
+#            user-name-attribute: preferred_username
+  devtools:
+    add-properties: false
+  servlet:
+    context-path: /api
+  application:
+    name: dashboard_backend
+    schema: app
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    host: localhost:5432
+    database: dashboard_urfu
+    url: jdbc:postgresql://${spring.datasource.host}/${spring.datasource.database}?ApplicationName=${spring.application.name}
+    username: dashboard_backend
+    password: dashboard_backend
+    hikari:
+      data-source-properties:
+        stringtype: unspecified
+      maximum-pool-size: 3
+  jpa:
+    properties:
+      hibernate:
+        default_schema: ${spring.application.schema}
+  flyway:
+    url: ${spring.datasource.url}
+    baseline-on-migrate: true
+    user: username
+    password: password
+    schemas: ${spring.application.schema}
+    placeholders:
+      service_user: ${spring.datasource.username}
+    enabled: true
+
+#  keycloak:
+#    auth-server-url: http://localhost:8080/auth
+#    realm: dashboard_realm
+#    resource: my_client
+#    public-client: true
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+logging:
+  level:
+    root: info
+  file:
+    name: ${logging.file.path}/nsi-minzdrav-download-service.log
+    path: logs
+  pattern:
+    file: '"%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"'
