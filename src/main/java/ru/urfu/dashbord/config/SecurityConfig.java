@@ -1,36 +1,33 @@
 package ru.urfu.dashbord.config;
 
+import lombok.RequiredArgsConstructor;
+import org.keycloak.adapters.springsecurity.KeycloakConfiguration;
+import org.keycloak.adapters.springsecurity.authentication.KeycloakAuthenticationProvider;
+import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
+import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
+import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
+import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import ru.urfu.dashbord.jpa.repository.UsersRepository;
 
-@Configuration
-@EnableWebSecurity
-@EnableGlobalMethodSecurity(prePostEnabled = true)
-class SecurityConfig {
-  private final KeycloakLogoutHandler keycloakLogoutHandler;
-  SecurityConfig(KeycloakLogoutHandler keycloakLogoutHandler) {
-    this.keycloakLogoutHandler = keycloakLogoutHandler;
-  }
-  @Bean
-  protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
-    return new RegisterSessionAuthenticationStrategy(new SessionRegistryImpl());
-  }
+@KeycloakConfiguration
+@RequiredArgsConstructor
+public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
 
-  @Order(1)
-  @Bean
-  public SecurityFilterChain clientFilterChain(HttpSecurity http) throws Exception {
+  private final UsersRepository usersRepository;
+
+  @Override
+  protected void configure(HttpSecurity http) throws Exception
+  {
+//    super.configure(http);
     http.authorizeRequests()
         .requestMatchers(new AntPathRequestMatcher("/"))
         .permitAll()
@@ -39,23 +36,39 @@ class SecurityConfig {
     http.oauth2Login()
         .and()
         .logout()
-        .addLogoutHandler(keycloakLogoutHandler)
+        .addLogoutHandler(new KeycloakLogoutHandler())
         .logoutSuccessUrl("/");
-    return http.build();
   }
 
-  @Order(2)
-  @Bean
-  public SecurityFilterChain resourceServerFilterChain(HttpSecurity http) throws Exception {
-    http.authorizeRequests()
-        .anyRequest()
-        .authenticated();
-    http.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
-    return http.build();
+  /**
+   * Registers the KeycloakAuthenticationProvider with the authentication manager.
+   */
+  @Autowired
+  public void configureGlobal(AuthenticationManagerBuilder auth) {
+    auth.authenticationProvider(getKeycloakAuthenticationProvider());
   }
+
+  /**
+   * Defines the session authentication strategy.
+   */
   @Bean
-  public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-    return http.getSharedObject(AuthenticationManagerBuilder.class)
-        .build();
+  @Override
+  protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
+    return new RegisterSessionAuthenticationStrategy(buildSessionRegistry());
   }
+
+  @Bean
+  protected SessionRegistry buildSessionRegistry() {
+    return new SessionRegistryImpl();
+  }
+
+  private KeycloakAuthenticationProvider getKeycloakAuthenticationProvider() {
+    KeycloakAuthenticationProvider authenticationProvider = keycloakAuthenticationProvider();
+    GrantedAuthoritiesMapper mapper = new SimpleAuthorityMapper();
+//    GrantedAuthoritiesMapper mapper = new NullAuthoritiesMapper();
+//    mapper.mapAuthorities(userDetailsService.loadUserByUsername())
+    authenticationProvider.setGrantedAuthoritiesMapper(mapper);
+    return authenticationProvider;
+  }
+
 }

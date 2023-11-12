@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Component;
@@ -40,6 +41,7 @@ public class KeycloakLogoutHandler implements LogoutHandler {
     } else {
       logger.error("Could not propagate logout to Keycloak");
     }
+    SecurityContextHolder.clearContext();
   }
 
 }
