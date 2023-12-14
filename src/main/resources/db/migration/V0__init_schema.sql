@@ -55,34 +55,6 @@ COMMENT ON COLUMN ${flyway:defaultSchema}.message.user_to IS 'Кому';
 COMMENT ON COLUMN ${flyway:defaultSchema}.message.theme IS 'Тема';
 COMMENT ON COLUMN ${flyway:defaultSchema}.message.content IS 'Содержание';
 
-create table if not exists groups
-(
-    id          bigserial     not null,
-    group_name  varchar(50)   not null unique,
-    description varchar(1000) null,
-    CONSTRAINT pk_groups_id PRIMARY KEY (id)
-);
-
-COMMENT ON TABLE ${flyway:defaultSchema}.groups IS 'Группа';
-COMMENT ON COLUMN ${flyway:defaultSchema}.groups.id IS 'Идентификатор группы';
-COMMENT ON COLUMN ${flyway:defaultSchema}.groups.group_name IS 'Наименование';
-COMMENT ON COLUMN ${flyway:defaultSchema}.groups.description IS 'Описание';
-
-create table if not exists user_group
-(
-    id       bigserial not null,
-    user_id  int8      NOT NULL,
-    group_id int8      NOT NULL,
-    CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES ${flyway:defaultSchema}.users (id),
-    CONSTRAINT fk_group_id FOREIGN KEY (group_id) REFERENCES ${flyway:defaultSchema}.groups (id),
-    CONSTRAINT pk_user_group_id PRIMARY KEY (id)
-);
-
-COMMENT ON TABLE ${flyway:defaultSchema}.user_group IS 'Группа пользователей';
-COMMENT ON COLUMN ${flyway:defaultSchema}.user_group.id IS 'Идентификатор группы пользователей';
-COMMENT ON COLUMN ${flyway:defaultSchema}.user_group.user_id IS 'Идентификатор пользователя';
-COMMENT ON COLUMN ${flyway:defaultSchema}.user_group.group_id IS 'Идентификатор группы';
-
 create table if not exists notification
 (
     id         bigserial not null,

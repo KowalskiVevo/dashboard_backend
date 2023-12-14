@@ -17,16 +17,6 @@ spring:
             client-id: my-client
             #            client-secret: --generated--
             scope: openid
-  #      client:
-  #        registration:
-  #          keycloak:
-  #            client-id: my-client
-  #            authorization-grant-type: authorization_code
-  #            scope: openid
-  #        provider:
-  #          keycloak:
-  #            issuer-uri: http://localhost:8080/realms/dashboard_realm
-  #            user-name-attribute: preferred_username
   devtools:
     add-properties: false
   servlet:
