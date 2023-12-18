@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.urfu.dashbord.dto.UserDto;
@@ -14,7 +15,8 @@ import ru.urfu.dashbord.jpa.repository.UserRepository;
 import ru.urfu.dashbord.mapper.UserMapper;
 
 import java.io.IOException;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -26,8 +28,9 @@ public class UserController {
 
   @GetMapping("/me")
   @ApiOperation("Получить информацию об авторизованном пользователе")
-  public ResponseEntity getMe() {
-    return userRepository.findByTag(SecurityContextHolder.getContext().getAuthentication().getName())
+  public ResponseEntity<UserDto> getMe() {
+    Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    return userRepository.findByTag(jwt.getClaims().get("preferred_username").toString())
         .map(UserMapper::toDto)
         .map(ResponseEntity::ok)
         .orElse(null);
@@ -39,10 +42,9 @@ public class UserController {
                                 @RequestParam(required = false) MultipartFile photo) {
     try {
       return userRepository.findByTag(userDto.getTag())
-          .map(User::getId)
-          .map(id -> {
+          .map(user -> {
             try {
-              return saveUser(id, photo, userDto);
+              return saveUser(user, photo, userDto);
             } catch (IOException e) {
               throw new RuntimeException(e);
             }
@@ -55,12 +57,23 @@ public class UserController {
     }
   }
 
-  private User saveUser(Long id, MultipartFile photo, UserDto userDto) throws IOException {
-    User user = UserMapper.toEntity(userDto);
+  @GetMapping("/all")
+  @ApiOperation("Получить всех пользователей")
+  public ResponseEntity<List<UserDto>> getAllUser(){
+    List<UserDto> userDtos = userRepository.findAllOrderByBirthdate().stream().map(UserMapper::toDto)
+        .collect(Collectors.toList());
+    Collections.reverse(userDtos);
+    return ResponseEntity.ok(userDtos);
+  }
+
+  private User saveUser(User user, MultipartFile photo, UserDto userDto) throws IOException {
     if (Objects.nonNull(photo)) {
-      user.setPhoto(photo.getBytes());
+      user.setPhoto(Base64.getEncoder().encodeToString(photo.getBytes()));
     }
-    user.setId(id);
+    user.setBirthdate(userDto.getBirthdate());
+    user.setFirstname(userDto.getFirstname());
+    user.setLastname(userDto.getLastname());
+    user.setAbout(userDto.getAbout());
     return userRepository.save(user);
   }
 }

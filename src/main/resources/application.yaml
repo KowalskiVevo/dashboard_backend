@@ -17,6 +17,19 @@ spring:
             client-id: my-client
             #            client-secret: --generated--
             scope: openid
+#spring:
+#  security:
+#    oauth2:
+#      client:
+#        registration:
+#          keycloak:
+#            client-id: my-client
+#            authorization-grant-type: client_credentials
+#            provider: keycloak
+#            scope: openid
+#        provider:
+#          keycloak:
+#            token-uri: http://localhost:8080/realms/dashboard_realm/protocol/openid-connect/token
   devtools:
     add-properties: false
   servlet:
@@ -62,8 +75,15 @@ spring:
 logging:
   level:
     root: info
+    org:
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
   file:
-    name: ${logging.file.path}/nsi-minzdrav-download-service.log
+    name: ${logging.file.path}/dashboard-backend.log
     path: logs
   pattern:
     file: '"%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"'

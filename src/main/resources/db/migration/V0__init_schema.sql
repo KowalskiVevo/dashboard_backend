@@ -19,7 +19,7 @@ create table if not exists users
     firstname  varchar(50)   not null,
     middlename varchar(50)   not null,
     birthdate  date          NOT NULL,
-    photo      bytea         NULL,
+    photo      varchar       NULL,
     about      varchar(1000) null,
     id_role    varchar(255)  not null default 'ROLE_USER',
     CONSTRAINT pk_user_id PRIMARY KEY (id),

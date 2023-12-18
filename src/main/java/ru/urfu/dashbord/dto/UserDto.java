@@ -17,7 +17,7 @@ public class UserDto {
   private String firstname;
   private String middlename;
   private LocalDate birthdate;
-  private byte[] photo;
+  private String photo;
   private String about;
   private String roleAlias;
   private String roleName;

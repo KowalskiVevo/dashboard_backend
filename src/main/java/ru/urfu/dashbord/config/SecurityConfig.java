@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
@@ -25,7 +26,6 @@ class SecurityConfig {
     return new RegisterSessionAuthenticationStrategy(new SessionRegistryImpl());
   }
 
-  //  @Order(1)
   @Bean
   public SecurityFilterChain clientFilterChain(HttpSecurity http) throws Exception {
     http.cors().and().csrf().disable()
@@ -35,11 +35,12 @@ class SecurityConfig {
         .anyRequest()
         .authenticated();
     http
-        .oauth2Login()
-        .and()
-        .logout()
-        .addLogoutHandler(keycloakLogoutHandler)
-        .logoutSuccessUrl("/");
+//        .oauth2Login()
+//        .and()
+        .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
+//        .logout()
+//        .addLogoutHandler(keycloakLogoutHandler)
+//        .logoutSuccessUrl("/");
     return http.build();
   }
 
