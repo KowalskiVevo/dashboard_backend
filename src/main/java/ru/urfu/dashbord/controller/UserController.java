@@ -60,9 +60,7 @@ public class UserController {
   @GetMapping("/all")
   @ApiOperation("Получить всех пользователей")
   public ResponseEntity<List<UserDto>> getAllUser(){
-    List<UserDto> userDtos = userRepository.findAllOrderByBirthdate().stream().map(UserMapper::toDto)
-        .collect(Collectors.toList());
-    Collections.reverse(userDtos);
+    List<UserDto> userDtos = userRepository.findAll().stream().map(UserMapper::toDto).toList();
     return ResponseEntity.ok(userDtos);
   }
 
