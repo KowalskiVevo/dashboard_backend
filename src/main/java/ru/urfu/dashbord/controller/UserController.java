@@ -16,7 +16,6 @@ import ru.urfu.dashbord.mapper.UserMapper;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -38,13 +37,12 @@ public class UserController {
 
   @PutMapping("/user")
   @ApiOperation("Редактирование пользователя")
-  public ResponseEntity putUser(@RequestBody UserDto userDto,
-                                @RequestParam(required = false) MultipartFile photo) {
+  public ResponseEntity putUser(@RequestBody UserDto userDto) {
     try {
       return userRepository.findByTag(userDto.getTag())
           .map(user -> {
             try {
-              return saveUser(user, photo, userDto);
+              return saveUser(user, userDto);
             } catch (IOException e) {
               throw new RuntimeException(e);
             }
@@ -64,9 +62,9 @@ public class UserController {
     return ResponseEntity.ok(userDtos);
   }
 
-  private User saveUser(User user, MultipartFile photo, UserDto userDto) throws IOException {
-    if (Objects.nonNull(photo)) {
-      user.setPhoto(Base64.getEncoder().encodeToString(photo.getBytes()));
+  private User saveUser(User user, UserDto userDto) throws IOException {
+    if (Objects.nonNull(userDto.getPhoto())) {
+      user.setPhoto(userDto.getPhoto());
     }
     user.setBirthdate(userDto.getBirthdate());
     user.setFirstname(userDto.getFirstname());
